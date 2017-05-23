@@ -44,7 +44,6 @@ class GridWorld:
             (defs.NUMBER_OF_TILES_V, defs.NUMBER_OF_TILES_H), dtype=np.int16)
         self.load_cell_from_file('./core/grid.txt')
         self.load_reward_from_file('./core/reward.txt')
-        pass
 
     def actions_for(self, p):
         """
