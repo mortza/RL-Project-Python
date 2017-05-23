@@ -29,21 +29,30 @@ class StandardQLearning(qlearningbase.QLearningBase):
                     self.grid_world.cell_type_of(s) != CellType.Goal:
                 s.x = randint(uid_h)
                 s.y = randint(uid_v)
+
             moves_per_episode = 0
 
             while self.grid_world.cell_type_of(s) != CellType.Goal and \
                     moves_per_episode < self.maximum_number_of_moves:
-                actions = self.grid_world.actions_for(s)
-                a = actions[randint(100) % len(actions)]
+                a = self.policy(s)
+
                 s_prime = self.grid_world.adjacent_of(s, a)
+
                 r = self.grid_world.get_reward_of(s)
+
                 actions_prime = self.grid_world.actions_for(s_prime)
+
                 max_q_s_prime = self.Q(s_prime, actions_prime[0])
+
                 for i in range(len(actions_prime)):
                     if self.Q(s_prime, actions_prime[i]) > max_q_s_prime:
                         max_q_s_prime = self.Q(s_prime, actions_prime[i])
-                q_s_a = r + self.gamma * max_q_s_prime
+
+                q_s_a = self.alpha * \
+                    (r + self.gamma * max_q_s_prime - self.Q(s, a))
+
                 self.update_qmatrix(s, a, q_s_a)
+
                 if self.grid_world.cell_type_of(s_prime) != CellType.Block:
                     s.x = s_prime.x
                     s.y = s_prime.y
@@ -65,14 +74,15 @@ class StandardQLearning(qlearningbase.QLearningBase):
         print('End StandardQLearning.train() execution')
 
     def Q(self, point, action):
-        if action == Action.Right:
-            return self.q_table[point.y][point.x].right
-        elif action == Action.Left:
-            return self.q_table[point.y][point.x].left
-        elif action == Action.Up:
-            return self.q_table[point.y][point.x].up
-        else:
-            return self.q_table[point.y][point.x].down
+        if self.grid_world.cell_type_of(point) != CellType.InvalidCell:
+            if action == Action.Right:
+                return self.q_table[point.y][point.x].right
+            elif action == Action.Left:
+                return self.q_table[point.y][point.x].left
+            elif action == Action.Up:
+                return self.q_table[point.y][point.x].up
+            else:
+                return self.q_table[point.y][point.x].down
 
     def R(self, point, action):
         """
@@ -91,10 +101,19 @@ class StandardQLearning(qlearningbase.QLearningBase):
             print('Update with: {}'.format(new_value))
 
         if action == Action.Right:
-            self.q_table[point.y][point.x].right = new_value
+            self.q_table[point.y][point.x].right = self.q_table[
+                point.y][point.x].right + new_value
         elif action == Action.Left:
-            self.q_table[point.y][point.x].left = new_value
+            self.q_table[point.y][point.x].left = self.q_table[
+                point.y][point.x].left + new_value
         elif action == Action.Up:
-            self.q_table[point.y][point.x].up = new_value
+            self.q_table[point.y][point.x].up = self.q_table[
+                point.y][point.x].up + new_value
         else:
-            self.q_table[point.y][point.x].down = new_value
+            self.q_table[point.y][point.x].down = self.q_table[
+                point.y][point.x].down + new_value
+
+
+class OppositeQlearning(qlearningbase.QLearningBase):
+    def __init__(sel, f):
+        super(OppositeQlearning, self).__init__()

@@ -7,7 +7,7 @@ Created on Tue May 23 18:54:21 2017
 """
 from core import defs
 from numpy.random import randint, random
-from core.GridWorld import GridWorld, Action
+from core.GridWorld import GridWorld, Action, CellType
 
 
 class Reward:
@@ -57,7 +57,9 @@ class QLearningBase:
                 value = values[i]
                 action = actions[i]
 
-        if random() < (1 - self.epsilon):
+        c_temp = self.grid_world.adjacent_of(p, action)
+        if random() < (1 - self.epsilon) and \
+                self.grid_world.cell_type_of(c_temp) != CellType.InvalidCell:
             # with probability of 1-epsilon choose best action
             return action
         else:
@@ -65,4 +67,10 @@ class QLearningBase:
             st = set(actions)
             st.remove(action)
             actions = [a for a in st]
-            return actions[randint(100) % 3]
+
+            a_temp = actions[randint(100) % 3]
+            c_temp = self.grid_world.adjacent_of(p, a_temp)
+            while self.grid_world.cell_type_of(c_temp) == CellType.InvalidCell:
+                a_temp = actions[randint(100) % 3]
+                c_temp = self.grid_world.adjacent_of(p, a_temp)
+            return a_temp
