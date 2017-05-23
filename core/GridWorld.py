@@ -34,6 +34,9 @@ class Point:
         self.x = x
         self.y = y
 
+    def __str__(self):
+        return 'core.GridWorld.Point({}, {})'.format(self.x, self.y)
+
 
 class GridWorld:
 
@@ -70,12 +73,15 @@ class GridWorld:
         if self.can_move_to(right):
             ret.append(Action.Right)
         if self.can_move_to(left):
-            ret.push_back(Action.Left)
+            ret.append(Action.Left)
         if self.can_move_to(up):
-            ret.push_back(Action.Up)
+            ret.append(Action.Up)
         if self.can_move_to(down):
-            ret.push_back(Action.Down)
+            ret.append(Action.Down)
         return ret
+
+    def get_reward_of(self, p):
+        return self.rewards[p.y][p.x]
 
     def cell_type_of(self, p):
         """

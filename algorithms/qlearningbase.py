@@ -19,7 +19,8 @@ class Reward:
         self.up = 0
 
     def __str__(self):
-        ret = 'Reward(right={}, left={}, down={}, up={})'
+        ret = 'algorithms.qlearningbase.Reward(right={}, \
+                left={}, down={}, up={})'
         return ret.format(self.right, self.left, self.down, self.up)
 
 
@@ -40,7 +41,7 @@ class QLearningBase:
         # a table for all cells in grid world with their 4 action
         self.q_table = [[Reward() for j in range(defs.NUMBER_OF_TILES_H)]
                         for i in range(defs.NUMBER_OF_TILES_V)]
-        self.gric_world = GridWorld()
+        self.grid_world = GridWorld()
         print('Done.')
 
     def policy(self, p):
