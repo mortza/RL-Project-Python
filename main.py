@@ -11,5 +11,5 @@ from algorithms import qlearning
 
 
 gw = GridWorld.GridWorld()
-k = qlearning.StandardQLearning()
-k.train()
+ppql = qlearning.PaperQLearning()
+ppql.train()

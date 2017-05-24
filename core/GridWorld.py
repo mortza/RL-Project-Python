@@ -48,6 +48,18 @@ class GridWorld:
         self.load_cell_from_file('./core/grid.txt')
         self.load_reward_from_file('./core/reward.txt')
 
+    def opposite_of(self, action):
+        """
+        """
+        if action == Action.Right:
+            return Action.Left
+        elif action == Action.Left:
+            return Action.Right
+        elif action == Action.Up:
+            return Action.Down
+        elif action == Action.Down:
+            return Action.Up
+
     def actions_for(self, p):
         """
         returns a list of actions for input Point
@@ -81,7 +93,13 @@ class GridWorld:
         return ret
 
     def get_reward_of(self, p):
-        return self.rewards[p.y][p.x]
+        """
+        """
+        if 0 <= p.x < defs.NUMBER_OF_TILES_H \
+                and 0 <= p.y < defs.NUMBER_OF_TILES_V:
+            return self.rewards[p.y][p.x]
+        else:
+            return -1
 
     def cell_type_of(self, p):
         """
