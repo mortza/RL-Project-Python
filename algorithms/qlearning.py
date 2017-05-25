@@ -13,9 +13,9 @@ from numpy.random import randint
 
 class StandardQLearning(qlearningbase.QLearningBase):
 
-    def __init__(self):
+    def __init__(self, reward_system='file'):
         print("bootstrapping StandardQLearning ...")
-        super(StandardQLearning, self).__init__()
+        super(StandardQLearning, self).__init__(reward_system='file')
         print("Done.")
 
     def train(self):
@@ -38,8 +38,6 @@ class StandardQLearning(qlearningbase.QLearningBase):
 
                 s_prime = self.grid_world.adjacent_of(s, a)
 
-                r_s_a = self.grid_world.get_reward_of(s_prime)
-
                 actions_prime = self.grid_world.actions_for(s_prime)
 
                 max_q_s_prime = self.Q(s_prime, actions_prime[0])
@@ -47,6 +45,11 @@ class StandardQLearning(qlearningbase.QLearningBase):
                 for i in range(len(actions_prime)):
                     if self.Q(s_prime, actions_prime[i]) > max_q_s_prime:
                         max_q_s_prime = self.Q(s_prime, actions_prime[i])
+
+                if self.grid_world.reward_type == 2:
+                    r_s_a = self.grid_world.get_reward_of(s_prime)
+                elif self.grid_world.reward_type == 1:
+                    r_s_a = self.grid_world.get_reward_of(s_prime, s)
 
                 q_s_a = self.Q(s, a)
                 q_s_a = q_s_a + self.alpha * \
@@ -120,9 +123,9 @@ class StandardQLearning(qlearningbase.QLearningBase):
 
 class PaperQLearning(qlearningbase.QLearningBase):
 
-    def __init__(self):
+    def __init__(self, reward_system='file'):
         print("bootstrapping PaperQLearning ...")
-        super(PaperQLearning, self).__init__()
+        super(PaperQLearning, self).__init__(reward_system)
         print("Done.")
 
     def train(self):
@@ -146,7 +149,6 @@ class PaperQLearning(qlearningbase.QLearningBase):
                 a = self.policy(s)
                 # Take action, observe reward r and next state s'
                 s_prime = self.grid_world.adjacent_of(s, a)
-                r_s_a = self.grid_world.get_reward_of(s_prime)
 
                 # Determine opposite action (ã)
                 a_tilde = self.grid_world.opposite_of(a)
@@ -162,12 +164,21 @@ class PaperQLearning(qlearningbase.QLearningBase):
                     if self.Q(s_prime, a_tilde_star) > self.Q(s_prime, a_t):
                         a_tilde_star = a_t
 
+                if self.grid_world.reward_type == 2:
+                    r_s_a = self.grid_world.get_reward_of(s_prime)
+                elif self.grid_world.reward_type == 1:
+                    r_s_a = self.grid_world.get_reward_of(s_prime, s)
+
                 q_s_a = self.Q(s, a)
                 q_s_a_tilde = self.Q(s, a_tilde)
                 q_s_prime_a_star = self.Q(s_prime, a_star)
                 q_s_prime_a_tilde_star = self.Q(s_prime, a_tilde_star)
-                r_s_a_tilde = self.grid_world.get_reward_of(
-                    self.grid_world.adjacent_of(s, a_tilde))
+
+                temp_state = self.grid_world.adjacent_of(s, a_tilde)
+                if self.grid_world.reward_type == 2:
+                    r_s_a_tilde = self.grid_world.get_reward_of(temp_state)
+                elif self.grid_world.reward_type == 1:
+                    r_s_a_tilde = self.grid_world.get_reward_of(temp_state, s)
 
                 if q_s_a < q_s_prime_a_star:
                     temp1 = q_s_a + self.alpha * \

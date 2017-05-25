@@ -27,7 +27,7 @@ class Reward:
 
 class QLearningBase:
 
-    def __init__(self):
+    def __init__(self, reward_system):
         print('bootstrapping QLearningBase ...')
         self.alpha = defs.ALPHA
         self.gamma = defs.GAMMA
@@ -43,7 +43,7 @@ class QLearningBase:
         self.q_table = [[Reward() for j in range(defs.NUMBER_OF_TILES_H)]
                         for i in range(defs.NUMBER_OF_TILES_V)]
         self.total_moves = np.zeros((self.number_of_episodes), dtype=np.int16)
-        self.grid_world = GridWorld()
+        self.grid_world = GridWorld(reward_system=reward_system)
         print('Done.')
 
     def policy(self, p):

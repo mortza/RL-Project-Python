@@ -8,6 +8,7 @@ Created on Sun May 21 16:51:53 2017
 from enum import Enum
 from . import defs
 import numpy as np
+import math
 
 
 class Action(Enum):
@@ -40,11 +41,29 @@ class Point:
 
 class GridWorld:
 
-    def __init__(self):
+    """
+        `reward_system` can be 'file' and 'dist' if set to file will
+         return reward values from loaded file else use euclidean distance
+         `dist` for two point, current point and next point, if new move
+         lower the distance return 1 else return 0
+        """
+
+    def __init__(self, reward_system):
         self.grid = np.zeros(
             (defs.NUMBER_OF_TILES_V, defs.NUMBER_OF_TILES_H), dtype=CellType)
         self.rewards = np.zeros(
             (defs.NUMBER_OF_TILES_V, defs.NUMBER_OF_TILES_H), dtype=np.int16)
+        self.goal_pos = Point(x=0, y=0)
+
+        if reward_system == 'dist':
+            self.get_reward_of = self._euclidean_distance
+            self.reward_type = 1
+            print("reward system set to euclidean distance")
+        else:
+            self.get_reward_of = self._reward_from_file
+            self.reward_type = 2
+            print("reward system set to file")
+
         self.load_cell_from_file('./core/grid.txt')
         self.load_reward_from_file('./core/reward.txt')
 
@@ -92,14 +111,21 @@ class GridWorld:
             ret.append(Action.Down)
         return ret
 
-    def get_reward_of(self, p):
+    def _reward_from_file(self, new_point, old_point=None):
         """
         """
-        if 0 <= p.x < defs.NUMBER_OF_TILES_H \
-                and 0 <= p.y < defs.NUMBER_OF_TILES_V:
-            return self.rewards[p.y][p.x]
+        if 0 <= new_point.x < defs.NUMBER_OF_TILES_H \
+                and 0 <= new_point.y < defs.NUMBER_OF_TILES_V:
+            return self.rewards[new_point.y][new_point.x]
         else:
             return -1
+
+    def _euclidean_distance(self, new_point, old_point):
+        dist1 = math.sqrt((new_point.x - self.goal_pos.x) **
+                          2 + (new_point.y - self.goal_pos.y)**2)
+        dist2 = math.sqrt((old_point.x - self.goal_pos.x) **
+                          2 + (old_point.y - self.goal_pos.y)**2)
+        return 1 if dist1 < dist2 else -1
 
     def cell_type_of(self, p):
         """
@@ -149,6 +175,9 @@ class GridWorld:
             for (i, line) in enumerate(grid_file.readlines()):
                 for (j, char) in enumerate(line.split()):
                     self.grid[i][j] = CellType(int(char))
+                    if self.grid[i][j] == CellType.Goal:
+                        self.goal_pos.x = j
+                        self.goal_pos.y = i
 
         if defs.SHOW_GRID_WORLD_VALUES:
             for i in range(defs.NUMBER_OF_TILES_V):
