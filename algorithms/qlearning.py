@@ -38,7 +38,7 @@ class StandardQLearning(qlearningbase.QLearningBase):
 
                 s_prime = self.grid_world.adjacent_of(s, a)
 
-                r = self.grid_world.get_reward_of(s)
+                r_s_a = self.grid_world.get_reward_of(s_prime)
 
                 actions_prime = self.grid_world.actions_for(s_prime)
 
@@ -50,7 +50,7 @@ class StandardQLearning(qlearningbase.QLearningBase):
 
                 q_s_a = self.Q(s, a)
                 q_s_a = q_s_a + self.alpha * \
-                    (r + self.gamma * max_q_s_prime - q_s_a)
+                    (r_s_a + self.gamma * max_q_s_prime - q_s_a)
 
                 self.update_qmatrix(s, a, q_s_a)
 
@@ -58,6 +58,8 @@ class StandardQLearning(qlearningbase.QLearningBase):
                     s.x = s_prime.x
                     s.y = s_prime.y
                 moves_per_episode = moves_per_episode + 1
+
+            self.total_moves[episode] = moves_per_episode
 
         if defs.LOG_ALGO_MSG:
             self._log()
@@ -144,7 +146,7 @@ class PaperQLearning(qlearningbase.QLearningBase):
                 a = self.policy(s)
                 # Take action, observe reward r and next state s'
                 s_prime = self.grid_world.adjacent_of(s, a)
-                r = self.grid_world.get_reward_of(s_prime)
+                r_s_a = self.grid_world.get_reward_of(s_prime)
 
                 # Determine opposite action (ã)
                 a_tilde = self.grid_world.opposite_of(a)
@@ -169,7 +171,7 @@ class PaperQLearning(qlearningbase.QLearningBase):
 
                 if q_s_a < q_s_prime_a_star:
                     temp1 = q_s_a + self.alpha * \
-                        (r + self.gamma * q_s_prime_a_star +
+                        (r_s_a + self.gamma * q_s_prime_a_star +
                          (1 - self.gamma) * q_s_prime_a_tilde_star - q_s_a)
 
                     temp2 = q_s_a_tilde + self.alpha * \
@@ -180,7 +182,7 @@ class PaperQLearning(qlearningbase.QLearningBase):
                     self.update_qmatrix(s, a_tilde, temp2)
                 else:
                     temp1 = q_s_a + self.alpha * \
-                        (r + (1 - self.gamma) * q_s_prime_a_star +
+                        (r_s_a + (1 - self.gamma) * q_s_prime_a_star +
                          self.gamma * q_s_prime_a_tilde_star - q_s_a)
 
                     temp2 = q_s_a_tilde + self.alpha * \
@@ -195,6 +197,7 @@ class PaperQLearning(qlearningbase.QLearningBase):
                     s.y = s_prime.y
                 moves_per_episode = moves_per_episode + 1
 
+            self.total_moves[episode] = moves_per_episode
         if defs.LOG_ALGO_MSG:
             self._log()
 

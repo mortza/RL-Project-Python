@@ -14,11 +14,11 @@ GAMMA = 0.1
 EPSILON = 0.5
 
 
-NUMBER_OF_EPISODES = 15
+NUMBER_OF_EPISODES = 100
 MAXIMUM_NUMBER_OF_MOVES = 3000
 
 # use to control verbosity of algorithms
-LOG_ALGO_MSG = True
+LOG_ALGO_MSG = False
 
 # show gridworld values
 SHOW_GRID_WORLD_VALUES = False

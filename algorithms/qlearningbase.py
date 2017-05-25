@@ -6,6 +6,7 @@ Created on Tue May 23 18:54:21 2017
 @author: mortza
 """
 from core import defs
+import numpy as np
 from numpy.random import randint, random
 from core.GridWorld import GridWorld, Action, CellType
 
@@ -41,6 +42,7 @@ class QLearningBase:
         # a table for all cells in grid world with their 4 action
         self.q_table = [[Reward() for j in range(defs.NUMBER_OF_TILES_H)]
                         for i in range(defs.NUMBER_OF_TILES_V)]
+        self.total_moves = np.zeros((self.number_of_episodes), dtype=np.int16)
         self.grid_world = GridWorld()
         print('Done.')
 
