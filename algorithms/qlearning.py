@@ -15,7 +15,7 @@ class StandardQLearning(qlearningbase.QLearningBase):
 
     def __init__(self, reward_system='file'):
         print("bootstrapping StandardQLearning ...")
-        super(StandardQLearning, self).__init__(reward_system='file')
+        super(StandardQLearning, self).__init__(reward_system)
         print("Done.")
 
     def train(self):
