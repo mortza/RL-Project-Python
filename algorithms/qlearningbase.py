@@ -90,10 +90,18 @@ class QLearningBase:
     def soft_max_policy(self, p):
         """
         """
-        actions = list([Action.Right, Action.Left, Action.Down, Action.Up])
-        values = np.array([self.q_table[p.y][p.x].right, self.q_table[p.y][
-                          p.x].left, self.q_table[p.y][p.x].down,
-            self.q_table[p.y][p.x].up])
+        actions = self.grid_world.actions_for(p, ignore_block=True)
+        values = list()
+
+        for action in actions:
+            if action == Action.Right:
+                values.append(self.q_table[p.y][p.x].right)
+            elif action == Action.Left:
+                values.append(self.q_table[p.y][p.x].left)
+            elif action == Action.Down:
+                values.append(self.q_table[p.y][p.x].down)
+            elif action == Action.Up:
+                values.append(self.q_table[p.y][p.x].up)
 
         values = self.soft_max(values)
 
@@ -105,11 +113,8 @@ class QLearningBase:
 
         rand_number = np.random.rand()
 
-        if rand_number < values[0]:
-            return actions[0]
-        elif rand_number < values[1]:
-            return actions[1]
-        elif rand_number < values[2]:
-            return actions[2]
+        for (i, value) in enumerate(values):
+            if rand_number < value:
+                return actions[i]
         else:
-            return actions[3]
+            return actions[-1]

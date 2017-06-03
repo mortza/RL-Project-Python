@@ -25,7 +25,7 @@ class StandardQLearning(qlearningbase.QLearningBase):
 
         for episode in range(self.number_of_episodes):
             s = Point(x=randint(uid_h), y=randint(uid_v))
-            while not self.grid_world.can_move_to(s) and \
+            while not self.grid_world.can_move_to(s, ignore_block=False) and \
                     self.grid_world.cell_type_of(s) != CellType.Goal:
                 s.x = randint(uid_h)
                 s.y = randint(uid_v)
@@ -136,7 +136,7 @@ class PaperQLearning(qlearningbase.QLearningBase):
         for episode in range(self.number_of_episodes):
             # Initialize s
             s = Point(x=randint(uid_h), y=randint(uid_v))
-            while not self.grid_world.can_move_to(s) and \
+            while not self.grid_world.can_move_to(s, ignore_block=False) and \
                     self.grid_world.cell_type_of(s) != CellType.Goal:
                 s.x = randint(uid_h)
                 s.y = randint(uid_v)
