@@ -8,10 +8,10 @@ Created on Sun May 21 17:00:39 2017
 from algorithms import qlearning
 import matplotlib.pyplot as plt
 
-pql = qlearning.PaperQLearning(reward_system='dist')
+pql = qlearning.PaperQLearning(reward_system='dist', policy='soft_max')
 pql.train()
 
-sql = qlearning.StandardQLearning(reward_system='dist')
+sql = qlearning.StandardQLearning(reward_system='dist', policy='soft_max')
 sql.train()
 
 
