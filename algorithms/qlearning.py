@@ -13,9 +13,9 @@ from numpy.random import randint
 
 class StandardQLearning(qlearningbase.QLearningBase):
 
-    def __init__(self, reward_system='file'):
+    def __init__(self, policy, reward_system='file'):
         print("bootstrapping StandardQLearning ...")
-        super(StandardQLearning, self).__init__(reward_system)
+        super(StandardQLearning, self).__init__(reward_system, policy)
         print("Done.")
 
     def train(self):
@@ -123,9 +123,9 @@ class StandardQLearning(qlearningbase.QLearningBase):
 
 class PaperQLearning(qlearningbase.QLearningBase):
 
-    def __init__(self, reward_system='file'):
+    def __init__(self, policy, reward_system='file'):
         print("bootstrapping PaperQLearning ...")
-        super(PaperQLearning, self).__init__(reward_system)
+        super(PaperQLearning, self).__init__(reward_system, policy)
         print("Done.")
 
     def train(self):
@@ -156,6 +156,8 @@ class PaperQLearning(qlearningbase.QLearningBase):
                 s_prime_actions = self.grid_world.actions_for(s_prime)
                 a_star = s_prime_actions[0]
                 for a_t in s_prime_actions:
+                    print(s_prime, a_star, a_t, self.Q(
+                        s_prime, a_star), self.Q(s_prime, a_t))
                     if self.Q(s_prime, a_star) < self.Q(s_prime, a_t):
                         a_star = a_t
 
