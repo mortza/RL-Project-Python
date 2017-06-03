@@ -79,7 +79,7 @@ class GridWorld:
         elif action == Action.Down:
             return Action.Up
 
-    def actions_for(self, p):
+    def actions_for(self, p, ignore_block=False):
         """
         returns a list of actions for input Point
         """
@@ -101,13 +101,13 @@ class GridWorld:
         down.x = p.x
         down.y = p.y + 1
 
-        if self.can_move_to(right):
+        if self.can_move_to(right, ignore_block):
             ret.append(Action.Right)
-        if self.can_move_to(left):
+        if self.can_move_to(left, ignore_block):
             ret.append(Action.Left)
-        if self.can_move_to(up):
+        if self.can_move_to(up, ignore_block):
             ret.append(Action.Up)
-        if self.can_move_to(down):
+        if self.can_move_to(down, ignore_block):
             ret.append(Action.Down)
         return ret
 
@@ -155,14 +155,14 @@ class GridWorld:
             ret.y = p.y + 1
         return ret
 
-    def can_move_to(self, p):
+    def can_move_to(self, p, ignore_block):
         """
         return true or false,
         p is point
         """
         if self.cell_type_of(p) == CellType.InvalidCell:
             return False
-        elif self.cell_type_of(p) == CellType.Block:
+        elif self.cell_type_of(p) == CellType.Block and not ignore_block:
             return False
         else:
             return True

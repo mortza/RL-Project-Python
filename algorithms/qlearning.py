@@ -13,9 +13,9 @@ from numpy.random import randint
 
 class StandardQLearning(qlearningbase.QLearningBase):
 
-    def __init__(self, reward_system='file'):
+    def __init__(self, policy, reward_system='file'):
         print("bootstrapping StandardQLearning ...")
-        super(StandardQLearning, self).__init__(reward_system)
+        super(StandardQLearning, self).__init__(reward_system, policy)
         print("Done.")
 
     def train(self):
@@ -25,7 +25,7 @@ class StandardQLearning(qlearningbase.QLearningBase):
 
         for episode in range(self.number_of_episodes):
             s = Point(x=randint(uid_h), y=randint(uid_v))
-            while not self.grid_world.can_move_to(s) and \
+            while not self.grid_world.can_move_to(s, ignore_block=False) and \
                     self.grid_world.cell_type_of(s) != CellType.Goal:
                 s.x = randint(uid_h)
                 s.y = randint(uid_v)
@@ -123,9 +123,9 @@ class StandardQLearning(qlearningbase.QLearningBase):
 
 class PaperQLearning(qlearningbase.QLearningBase):
 
-    def __init__(self, reward_system='file'):
+    def __init__(self, policy, reward_system='file'):
         print("bootstrapping PaperQLearning ...")
-        super(PaperQLearning, self).__init__(reward_system)
+        super(PaperQLearning, self).__init__(reward_system, policy)
         print("Done.")
 
     def train(self):
@@ -136,7 +136,7 @@ class PaperQLearning(qlearningbase.QLearningBase):
         for episode in range(self.number_of_episodes):
             # Initialize s
             s = Point(x=randint(uid_h), y=randint(uid_v))
-            while not self.grid_world.can_move_to(s) and \
+            while not self.grid_world.can_move_to(s, ignore_block=False) and \
                     self.grid_world.cell_type_of(s) != CellType.Goal:
                 s.x = randint(uid_h)
                 s.y = randint(uid_v)
@@ -156,6 +156,8 @@ class PaperQLearning(qlearningbase.QLearningBase):
                 s_prime_actions = self.grid_world.actions_for(s_prime)
                 a_star = s_prime_actions[0]
                 for a_t in s_prime_actions:
+                    print(s_prime, a_star, a_t, self.Q(
+                        s_prime, a_star), self.Q(s_prime, a_t))
                     if self.Q(s_prime, a_star) < self.Q(s_prime, a_t):
                         a_star = a_t
 

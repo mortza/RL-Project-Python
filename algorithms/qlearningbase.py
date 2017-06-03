@@ -6,6 +6,7 @@ Created on Tue May 23 18:54:21 2017
 @author: mortza
 """
 from core import defs
+import operator
 import numpy as np
 from numpy.random import randint, random
 from core.GridWorld import GridWorld, Action, CellType
@@ -27,7 +28,7 @@ class Reward:
 
 class QLearningBase:
 
-    def __init__(self, reward_system):
+    def __init__(self, reward_system, policy='e-greedy'):
         print('bootstrapping QLearningBase ...')
         self.alpha = defs.ALPHA
         self.gamma = defs.GAMMA
@@ -44,9 +45,13 @@ class QLearningBase:
                         for i in range(defs.NUMBER_OF_TILES_V)]
         self.total_moves = np.zeros((self.number_of_episodes), dtype=np.int16)
         self.grid_world = GridWorld(reward_system=reward_system)
+        if policy == 'soft_max':
+            self.policy = self.soft_max_policy
+        else:
+            self.policy = self.e_greedy
         print('Done.')
 
-    def policy(self, p):
+    def e_greedy(self, p):
         # choose action with highest value
         action = Action.Right
         value = self.q_table[p.y][p.x].right
@@ -76,3 +81,40 @@ class QLearningBase:
                 a_temp = actions[randint(100) % 3]
                 c_temp = self.grid_world.adjacent_of(p, a_temp)
             return a_temp
+
+    def soft_max(self, x):
+        """
+        """
+        return np.exp(x) / np.sum(np.exp(x))
+
+    def soft_max_policy(self, p):
+        """
+        """
+        actions = self.grid_world.actions_for(p, ignore_block=True)
+        values = list()
+
+        for action in actions:
+            if action == Action.Right:
+                values.append(self.q_table[p.y][p.x].right)
+            elif action == Action.Left:
+                values.append(self.q_table[p.y][p.x].left)
+            elif action == Action.Down:
+                values.append(self.q_table[p.y][p.x].down)
+            elif action == Action.Up:
+                values.append(self.q_table[p.y][p.x].up)
+
+        values = self.soft_max(values)
+
+        pairs = dict(zip(actions, values))
+        pairs = sorted(pairs.items(), key=operator.itemgetter(1))
+
+        values = np.array([i[1] for i in pairs]).cumsum()
+        actions = np.array([i[0] for i in pairs])
+
+        rand_number = np.random.rand()
+
+        for (i, value) in enumerate(values):
+            if rand_number < value:
+                return actions[i]
+        else:
+            return actions[-1]
