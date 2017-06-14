@@ -1,4 +1,7 @@
 # RL-Project-Python
+
+[![Build Status](https://travis-ci.org/mortza/RL-Project-Python.svg?branch=master)](https://travis-ci.org/mortza/RL-Project-Python)
+
 ### minimum system requirements :
 + matplotlib (2.0.0)
 + Python 3.6.0
