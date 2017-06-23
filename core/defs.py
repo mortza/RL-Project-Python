@@ -6,15 +6,15 @@ Created on Sun May 21 17:02:24 2017
 @author: mortza
 """
 
-NUMBER_OF_TILES_H = 11
-NUMBER_OF_TILES_V = 10
+NUMBER_OF_TILES_H = 15
+NUMBER_OF_TILES_V = 14
 
-ALPHA = 0.5
-GAMMA = 0.1
+ALPHA = 0.1
+GAMMA = 0.3
 EPSILON = 0.5
 
 
-NUMBER_OF_EPISODES = 100
+NUMBER_OF_EPISODES = 150
 MAXIMUM_NUMBER_OF_MOVES = 3000
 
 # use to control verbosity of algorithms

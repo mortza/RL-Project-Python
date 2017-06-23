@@ -9,7 +9,7 @@ from core import defs
 import operator
 import numpy as np
 from numpy.random import randint, random
-from core.GridWorld import GridWorld, Action, CellType
+from core.GridWorld import GridWorld, Action, CellType, Point
 
 
 class Reward:
@@ -34,6 +34,8 @@ class QLearningBase:
         self.gamma = defs.GAMMA
         self.epsilon = defs.EPSILON
         self.number_of_episodes = defs.NUMBER_OF_EPISODES
+        # used in soft_max
+        self.current_episode = 0
         # number of success
         self.number_of_success = 0
         # used to measure average number of moves for agent to go in goal
@@ -50,6 +52,21 @@ class QLearningBase:
         else:
             self.policy = self.e_greedy
         print('Done.')
+
+    def find_goal(self, p):
+        s = Point(x=p.x, y=p.y)
+        steps = 0
+        max_steps = self.maximum_number_of_moves
+        while self.grid_world.cell_type_of(s) != CellType.Goal:
+            steps = steps + 1
+            a = self.policy(s)
+            new_s = self.grid_world.adjacent_of(s, a)
+            if self.grid_world.can_move_to(new_s, ignore_block=False):
+                s = new_s
+            if steps > max_steps:
+                break
+
+        return steps
 
     def e_greedy(self, p):
         # choose action with highest value
@@ -85,7 +102,9 @@ class QLearningBase:
     def soft_max(self, x):
         """
         """
-        return np.exp(x) / np.sum(np.exp(x))
+        # +1 used to avoid divide by zero error
+        tau = self.number_of_episodes + 1 - self.current_episode
+        return np.exp(x / tau) / np.sum(np.exp(x / tau))
 
     def soft_max_policy(self, p):
         """
@@ -103,7 +122,7 @@ class QLearningBase:
             elif action == Action.Up:
                 values.append(self.q_table[p.y][p.x].up)
 
-        values = self.soft_max(values)
+        values = self.soft_max(np.array(values))
 
         pairs = dict(zip(actions, values))
         pairs = sorted(pairs.items(), key=operator.itemgetter(1))

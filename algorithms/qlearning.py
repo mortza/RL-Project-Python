@@ -9,6 +9,7 @@ from . import qlearningbase
 from core.GridWorld import Action, CellType, Point
 from core import defs
 from numpy.random import randint
+import numpy as np
 
 
 class StandardQLearning(qlearningbase.QLearningBase):
@@ -24,6 +25,7 @@ class StandardQLearning(qlearningbase.QLearningBase):
         uid_v = defs.NUMBER_OF_TILES_V
 
         for episode in range(self.number_of_episodes):
+            self.current_episode = self.current_episode + 1
             s = Point(x=randint(uid_h), y=randint(uid_v))
             while not self.grid_world.can_move_to(s, ignore_block=False) and \
                     self.grid_world.cell_type_of(s) != CellType.Goal:
@@ -46,10 +48,7 @@ class StandardQLearning(qlearningbase.QLearningBase):
                     if self.Q(s_prime, actions_prime[i]) > max_q_s_prime:
                         max_q_s_prime = self.Q(s_prime, actions_prime[i])
 
-                if self.grid_world.reward_type == 2:
-                    r_s_a = self.grid_world.get_reward_of(s_prime)
-                elif self.grid_world.reward_type == 1:
-                    r_s_a = self.grid_world.get_reward_of(s_prime, s)
+                r_s_a = self.grid_world.get_reward_of(s_prime, s)
 
                 q_s_a = self.Q(s, a)
                 q_s_a = q_s_a + self.alpha * \
@@ -128,12 +127,21 @@ class PaperQLearning(qlearningbase.QLearningBase):
         super(PaperQLearning, self).__init__(reward_system, policy)
         print("Done.")
 
+    def update_opposite_action(self, p):
+        temp_array = np.array([self.q_table[p.y][p.x].right, self.q_table[p.y][
+            p.x].left, self.q_table[p.y][p.x].up,
+            self.q_table[p.y][p.x].down])
+        temp_array.sort()
+        return (temp_array[-1] - np.sum(np.abs(temp_array[:-1]))) <\
+            np.min(temp_array)
+
     def train(self):
         print("Start PaperQLearning.train() execution")
         uid_h = defs.NUMBER_OF_TILES_H
         uid_v = defs.NUMBER_OF_TILES_V
 
         for episode in range(self.number_of_episodes):
+            self.current_episode = self.current_episode + 1
             # Initialize s
             s = Point(x=randint(uid_h), y=randint(uid_v))
             while not self.grid_world.can_move_to(s, ignore_block=False) and \
@@ -151,13 +159,11 @@ class PaperQLearning(qlearningbase.QLearningBase):
                 s_prime = self.grid_world.adjacent_of(s, a)
 
                 # Determine opposite action (ã)
-                a_tilde = self.grid_world.opposite_of(a)
+                # a_tilde = self.grid_world.opposite_of(a)
 
                 s_prime_actions = self.grid_world.actions_for(s_prime)
                 a_star = s_prime_actions[0]
                 for a_t in s_prime_actions:
-                    print(s_prime, a_star, a_t, self.Q(
-                        s_prime, a_star), self.Q(s_prime, a_t))
                     if self.Q(s_prime, a_star) < self.Q(s_prime, a_t):
                         a_star = a_t
 
@@ -166,45 +172,42 @@ class PaperQLearning(qlearningbase.QLearningBase):
                     if self.Q(s_prime, a_tilde_star) > self.Q(s_prime, a_t):
                         a_tilde_star = a_t
 
-                if self.grid_world.reward_type == 2:
-                    r_s_a = self.grid_world.get_reward_of(s_prime)
-                elif self.grid_world.reward_type == 1:
-                    r_s_a = self.grid_world.get_reward_of(s_prime, s)
+                r_s_a = self.grid_world.get_reward_of(s_prime, s)
 
                 q_s_a = self.Q(s, a)
-                q_s_a_tilde = self.Q(s, a_tilde)
+                # q_s_a_tilde = self.Q(s, a_tilde)
                 q_s_prime_a_star = self.Q(s_prime, a_star)
                 q_s_prime_a_tilde_star = self.Q(s_prime, a_tilde_star)
 
-                temp_state = self.grid_world.adjacent_of(s, a_tilde)
-                if self.grid_world.reward_type == 2:
-                    r_s_a_tilde = self.grid_world.get_reward_of(temp_state)
-                elif self.grid_world.reward_type == 1:
-                    r_s_a_tilde = self.grid_world.get_reward_of(temp_state, s)
+                # temp_state = self.grid_world.adjacent_of(s, a_tilde)
+
+                # r_s_a_tilde = self.grid_world.get_reward_of(temp_state, s)
+
+                coef = (episode + 1) / (self.number_of_episodes + 1)
 
                 if q_s_a < q_s_prime_a_star:
                     temp1 = q_s_a + self.alpha * \
                         (r_s_a + self.gamma * q_s_prime_a_star +
-                         (1 - self.gamma) * q_s_prime_a_tilde_star - q_s_a)
+                         coef * q_s_prime_a_tilde_star - q_s_a)
 
-                    temp2 = q_s_a_tilde + self.alpha * \
-                        (r_s_a_tilde + self.gamma * q_s_prime_a_tilde_star +
-                         (1 - self.gamma) * q_s_prime_a_star - q_s_a_tilde)
+                    # temp2 = q_s_a_tilde + self.alpha * \
+                    #     (r_s_a_tilde + self.gamma * q_s_prime_a_tilde_star +
+                    #      coef * q_s_prime_a_star - q_s_a_tilde)
 
                     self.update_qmatrix(s, a, temp1)
-                    self.update_qmatrix(s, a_tilde, temp2)
+                    # self.update_qmatrix(s, a_tilde, temp2)
                 else:
                     temp1 = q_s_a + self.alpha * \
-                        (r_s_a + (1 - self.gamma) * q_s_prime_a_star +
+                        (r_s_a + coef * q_s_prime_a_star +
                          self.gamma * q_s_prime_a_tilde_star - q_s_a)
 
-                    temp2 = q_s_a_tilde + self.alpha * \
-                        (r_s_a_tilde + (1 - self.gamma) *
-                         q_s_prime_a_tilde_star + self.gamma *
-                            q_s_prime_a_star - q_s_a_tilde)
+                    # temp2 = q_s_a_tilde + self.alpha * \
+                    #     (r_s_a_tilde + coef *
+                    #      q_s_prime_a_tilde_star + self.gamma *
+                    #         q_s_prime_a_star - q_s_a_tilde)
 
                     self.update_qmatrix(s, a, temp1)
-                    self.update_qmatrix(s, a_tilde, temp2)
+                    # self.update_qmatrix(s, a_tilde, temp2)
                 if self.grid_world.cell_type_of(s_prime) != CellType.Block:
                     s.x = s_prime.x
                     s.y = s_prime.y
