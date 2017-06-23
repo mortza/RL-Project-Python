@@ -38,9 +38,10 @@ for k in range(100):
     steps_array_pql.append(pql.find_goal(s))
     steps_array_sql.append(sql.find_goal(s))
 
-plt.plot(rng, steps_array_pql, label='PQL')
-plt.plot(rng, steps_array_sql, label='SQL')
+pql_mean_steps = np.mean(steps_array_pql)
+sql_mean_steps = np.mean(steps_array_sql)
+
+plt.plot(rng, steps_array_pql, label=f'PQL, mean steps: {pql_mean_steps}')
+plt.plot(rng, steps_array_sql, label=f'SQL, mean steps: {sql_mean_steps}')
 plt.legend(loc='upper right')
 plt.show()
-print(np.mean(steps_array_pql))
-print(np.mean(steps_array_sql))
