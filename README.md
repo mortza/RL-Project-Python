@@ -1,5 +1,7 @@
 # RL-Project-Python
 
+[![forthebadge](http://forthebadge.com/images/badges/made-with-python.svg)](http://forthebadge.com)
+
 [![Build Status](https://travis-ci.org/mortza/RL-Project-Python.svg?branch=master)](https://travis-ci.org/mortza/RL-Project-Python)
 
 ### minimum system requirements :
